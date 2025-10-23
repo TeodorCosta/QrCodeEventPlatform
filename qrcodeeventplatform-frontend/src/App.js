@@ -1,20 +1,10 @@
 import React from 'react'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useParams,
-} from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom'
 
-import Home from './components/Home' 
-import PhotoUpload from './components/PhotoUpload'
-import PhotoGallery from './components/PhotoGallery'
+import Home from './components/Home'
 import SessionList from './components/SessionList'
-
-function UploadWrapper() {
-  const { sessionId } = useParams()
-  return <PhotoUpload sessionId={sessionId} />
-}
+import PhotoGallery from './components/PhotoGallery'
+import UploadWithCamera from './components/UploadWithCamera'
 
 function GalleryWrapper() {
   const { sessionId } = useParams()
@@ -22,16 +12,20 @@ function GalleryWrapper() {
 }
 
 function App() {
+  function GalleryWrapper() {
+    const { sessionId } = useParams()
+    return <PhotoGallery sessionId={sessionId} />
+  }
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/upload/:sessionId" element={<UploadWrapper />} />
-        <Route path="/gallery/:sessionId" element={<GalleryWrapper />} />
         <Route path="/sessions" element={<SessionList />} />
+        <Route path="/upload/:sessionId" element={<UploadWithCamera />} />
+        <Route path="/gallery/:sessionId" element={<GalleryWrapper />} />
       </Routes>
     </Router>
   )
 }
-
 export default App
