@@ -4,10 +4,12 @@ import com.qrcodeeventplatform_backend.qrcodeeventplatform_backend.entity.Photo;
 import com.qrcodeeventplatform_backend.qrcodeeventplatform_backend.service.PhotoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -83,16 +85,26 @@ public class PhotoController {
     @GetMapping("/download/{photoId}")
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long photoId) {
         Photo photo = photoService.getPhotoById(photoId);
-        if (photo.getImageData() == null) {
+        byte[] data;
+        try {
+            data = photoService.loadPhotoBytes(photo);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        if (data == null) {
             return ResponseEntity.notFound().build();
         }
 
+        String contentType = (photo.getContentType() != null && !photo.getContentType().isBlank())
+                ? photo.getContentType()
+                : MediaType.IMAGE_JPEG_VALUE;
+
         return ResponseEntity.ok()
-                .header("Content-Type", "image/jpeg")
-                .body(photo.getImageData());
+                .header("Content-Type", contentType)
+                .body(data);
     }
 
 
 
 }
-
